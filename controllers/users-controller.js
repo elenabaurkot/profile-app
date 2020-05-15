@@ -1,7 +1,9 @@
 const Users = require('../models/Users');
-const { validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const gravatar = require('gravatar');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const { validationResult } = require('express-validator');
 
 // register Users
 const registerUser = async (req, res) => {
@@ -37,8 +39,22 @@ const registerUser = async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
     // saves the user
     await user.save();
+
     // Return JSONWebToken
-    res.send('User Registered');
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+    jwt.sign(
+      payload,
+      config.get('jwtSecret'),
+      { expiresIn: 3600 },
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token });
+      }
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

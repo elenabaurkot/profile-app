@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const { check } = require('express-validator');
-
 const { registerUser } = require('../../controllers/users-controller');
 
 // @route       POST at api/users
