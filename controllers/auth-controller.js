@@ -14,7 +14,7 @@ const authorizeUser = async (req, res) => {
   }
 };
 
-// register Users
+// LOGIN USER VALIDATION
 const loginUser = async (req, res) => {
   //  sends error message for invalid entries to user registration
   const errors = validationResult(req);
@@ -30,13 +30,11 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ errors: [{ msg: 'Invalid Credentials' }] });
     }
-
     // check if password matches the user's stored password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ errors: [{ msg: 'Invalid Credentials' }] });
     }
-
     // Return JSONWebToken
     const payload = {
       user: {
