@@ -6,7 +6,9 @@ const auth = require('../../middleware/auth');
 const { createPost,
         getPosts,
         getPostById,
-        deletePost } = require('../../controllers/post-controller');
+        deletePost,
+        likePost,
+        unlikePost } = require('../../controllers/post-controller');
 
 // @route       POST api/posts
 // @desc        Create a post
@@ -32,5 +34,15 @@ router.route('/:id').get(auth, getPostById);
 // @desc        Delete a post
 // @access      Private
 router.route('/:id').delete(auth, deletePost);
+
+// @route       POST api/posts/like/:id
+// @desc        Like a post
+// @access      Private
+router.route('/like/:id').put(auth, likePost);
+
+// @route       POST api/posts/unlike/:id
+// @desc        Unlike a post
+// @access      Private
+router.route('/unlike/:id').put(auth, unlikePost);
 
 module.exports = router;
