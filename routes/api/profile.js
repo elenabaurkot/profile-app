@@ -8,7 +8,9 @@ const { getProfile,
         getProfileById,
         deleteProfile,
         addExperience,
-        deleteExperience} = require('../../controllers/profile-controller');
+        deleteExperience,
+        addEducation,
+        deleteEducation} = require('../../controllers/profile-controller');
 const { check } = require('express-validator');
 
 // @route       GET api/profile/me
@@ -54,9 +56,27 @@ router.route('/experience').put(
     addExperience
 );
 
-// @route       DELETE api/profile/experience
+// @route       DELETE api/profile/experience/:exp_id
 // @desc        Delete profile experience from profile 
 // @access      Private
 router.route('/experience/:exp_id').delete(auth, deleteExperience);
+
+// @route       PUT api/profile/education
+// @desc        Add profile education 
+// @access      Private
+router.route('/education').put(
+    [auth, [
+    check('school', 'School is required').not().isEmpty(),
+    check('degree', 'Degree is required').not().isEmpty(),
+    check('fieldofstudy', 'Field of study is required').not().isEmpty(),
+    check('from', 'From date is required').not().isEmpty()
+    ]],
+    addEducation
+);
+
+// @route       DELETE api/profile/education/:edu_id
+// @desc        Delete profile education from profile 
+// @access      Private
+router.route('/education/:edu_id').delete(auth, deleteEducation);
 
 module.exports = router;
