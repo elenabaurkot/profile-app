@@ -8,7 +8,9 @@ const { createPost,
         getPostById,
         deletePost,
         likePost,
-        unlikePost } = require('../../controllers/post-controller');
+        unlikePost,
+        commentOnPost,
+        deleteComment } = require('../../controllers/post-controller');
 
 // @route       POST api/posts
 // @desc        Create a post
@@ -44,5 +46,20 @@ router.route('/like/:id').put(auth, likePost);
 // @desc        Unlike a post
 // @access      Private
 router.route('/unlike/:id').put(auth, unlikePost);
+
+// @route       POST api/posts/comment/:id
+// @desc        Comment on a post
+// @access      Private
+router.route('/comment/:id').post(
+    [auth, [
+        check('text', 'Text is required').not().isEmpty()
+    ]],
+    commentOnPost
+);
+
+// @route       DELETE api/posts/comment/:id/:comment_id
+// @desc        Delete a comment
+// @access      Private
+router.route('/comment/:id/:comment_id').delete(auth, deleteComment);
 
 module.exports = router;
