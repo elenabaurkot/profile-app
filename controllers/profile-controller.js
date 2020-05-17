@@ -85,7 +85,116 @@ const createUpdateProfile = async (req, res) => {
   }
 }
 
+
+// Get all profiles
+const getAllProfiles = async(req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    res.json(profiles);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// Get profile by ID
+const getProfileById = async(req, res) => {
+  try {
+    const profile = await Profile.findOne({ user: req.params.user_id}).populate('user', ['name', 'avatar']);
+
+    if(!profile) {
+      return res.status(400).json({ msg: 'Profile not found'})
+    }
+    res.json(profile);
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind == 'ObjectId') {
+      res.status(400).json({ msg: 'Profile not found'})
+    }
+    res.status(500).send('Server error');
+  }
+};
+
+// Delete profile, user & posts
+const deleteProfile = async(req, res) => {
+  try {
+    // Remove profile
+    await Profile.findOneAndRemove({ user: req.user.id });
+    // Remove user
+    await Users.findOneAndRemove({ _id: req.user.id });
+    res.json({ msg: 'User deleted'});
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+// Add profile experience
+const addExperience = async(req, res) => {
+  const errors = validationResult(req);
+  if(!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const {
+    title,
+    company,
+    location,
+    from,
+    to,
+    current,
+    description
+  } = req.body
+
+  const newExp = {
+    title,
+    company,
+    location,
+    from,
+    to,
+    current,
+    description
+  }
+
+  try {
+    const profile = await Profile.findOne({ user: req.user.id });
+
+    profile.experience.unshift(newExp);
+
+    await profile.save()
+
+    res.json(profile);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error'); 
+  }
+}
+
+// Delete profile experience
+const deleteExperience = async(req, res) => {
+  try {
+    // get profile by user id
+    const profile = await Profile.findOne({ user: req.user.id });
+    // get remove index
+    const removeIndex = profile.experience.map(item => item.id).indexOf(req.params.exp_id);
+    
+    profile.experience.splice(removeIndex, 1);
+
+    await profile.save(); 
+    res.json(profile);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error'); 
+  }
+}
+
+
 module.exports = {
   getProfile,
-  createUpdateProfile
+  createUpdateProfile,
+  getAllProfiles,
+  getProfileById,
+  deleteProfile,
+  addExperience,
+  deleteExperience
 };
